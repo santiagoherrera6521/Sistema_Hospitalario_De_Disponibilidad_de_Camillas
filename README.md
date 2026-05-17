@@ -142,9 +142,9 @@ streamlit run visualizer.py
 
 | Nombre | Componente |
 |---|---|
-| [Integrante 1] | Generador de pacientes (C++) |
-| [Integrante 2] | Servidor hospitalario + SWIG (C++) |
-| [Integrante 3] | Visualizador + Git/Docs (Python) |
+| Luis Felipe Orrego| Generador de pacientes (C++) |
+| Julian  | Servidor hospitalario + SWIG (C++) |
+| Santiago Herrera Oquendo | Visualizador + Git/Docs (Python) |
 
 ---
 
