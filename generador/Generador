@@ -10,6 +10,7 @@ int main() {
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> distID(1, 99999);
+    std::uniform_int_distribution<int> distDelay(2, 5);
 
     while (true) {
         int numero = distID(rng);
@@ -20,7 +21,8 @@ int main() {
 
         std::cout << "Enviando: " << id << "\n";
 
-        std::this_thread::sleep_for(std::chrono::seconds(3));
+        int delay = distDelay(rng);
+        std::this_thread::sleep_for(std::chrono::seconds(delay));
     }
     return 0;
 }
