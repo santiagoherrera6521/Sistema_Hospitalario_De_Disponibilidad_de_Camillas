@@ -4,21 +4,14 @@
 #include <sstream>
 #include <iomanip>
 #include <ctime>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include "client_socket.h"
 
 int main() {
-    WSADATA wsaData;
-    WSAStartup(MAKEWORD(2,2), &wsaData);
+    SocketClient client("127.0.0.1", 9090);
 
-    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-
-    sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(9090);
-    inet_pton(AF_INET, "127.0.0.1", &server.sin_addr);
-
-    connect(sock, (sockaddr*)&server, sizeof(server));
+    if (!client.connectToServer()) {
+        return 1;
+    }
 
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -43,10 +36,10 @@ int main() {
 
         std::string mensaje = id + "|" + timestamp;
 
-        send(sock, mensaje.c_str(), mensaje.size(), 0);
+        client.sendMessage(mensaje);
         std::cout << "ID del paciente " << nombre << ": " << mensaje << "\n\n";
     }
 
-    WSACleanup();
+    client.disconnect();
     return 0;
 }
