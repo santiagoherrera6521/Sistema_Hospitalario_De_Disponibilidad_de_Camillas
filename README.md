@@ -142,8 +142,8 @@ streamlit run visualizer.py
 
 | Nombre | Componente |
 |---|---|
-| Luis Felipe Orrego| Generador de pacientes (C++) |
-| Julian  | Servidor hospitalario + SWIG (C++) |
+| Luis Felipe Orrego Rojas| Generador de pacientes (C++) |
+| Julian Zapata Gallego | Servidor hospitalario + SWIG (C++) |
 | Santiago Herrera Oquendo | Visualizador + Git/Docs (Python) |
 
 ---
@@ -156,7 +156,7 @@ streamlit run visualizer.py
 - [ ] Lógica de asignación y liberación de camillas
 - [ ] Compilación como librería dinámica (.so)
 - [ ] Wrapper SWIG
-- [ ] Interfaz Streamlit
+- [x] Interfaz Streamlit
 - [ ] Integración completa entre los 3 componentes
-- [ ] Documentación y diagramas UML
+- [x] Documentación y diagramas UML
 
