@@ -156,7 +156,7 @@ streamlit run visualizer.py
 - [ ] Lógica de asignación y liberación de camillas
 - [ ] Compilación como librería dinámica (.so)
 - [ ] Wrapper SWIG
-- [ ] Interfaz Streamlit
+- [x] Interfaz Streamlit
 - [ ] Integración completa entre los 3 componentes
-- [ ] Documentación y diagramas UML
+- [x] Documentación y diagramas UML
 
