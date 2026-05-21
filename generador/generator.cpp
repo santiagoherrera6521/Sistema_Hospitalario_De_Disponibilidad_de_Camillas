@@ -7,7 +7,11 @@
 #include "client_socket.h"
 
 int main() {
-    SocketClient client("127.0.0.1", 9090);
+    std::string ip;
+    std::cout << "Ingrese la IP del servidor: ";
+    std::getline(std::cin, ip);
+
+    SocketClient client(ip, 9090);
 
     if (!client.connectToServer()) {
         return 1;
@@ -37,7 +41,10 @@ int main() {
         std::string mensaje = id + "|" + timestamp;
 
         client.sendMessage(mensaje);
-        std::cout << "ID del paciente " << nombre << ": " << mensaje << "\n\n";
+
+        std::string respuesta = client.receiveMessage();
+        std::cout << "ID del paciente " << nombre << ": " << mensaje << "\n";
+        std::cout << "Respuesta servidor: " << respuesta << "\n\n";
     }
 
     client.disconnect();

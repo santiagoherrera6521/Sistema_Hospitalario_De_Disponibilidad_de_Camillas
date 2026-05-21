@@ -9,6 +9,7 @@ public:
     SocketClient(std::string host, int port);
     bool connectToServer();
     bool sendMessage(std::string mensaje);
+    std::string receiveMessage();
     void disconnect();
 
 private:

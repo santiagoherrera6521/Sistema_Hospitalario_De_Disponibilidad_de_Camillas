@@ -32,6 +32,15 @@ bool SocketClient::sendMessage(std::string mensaje) {
     return result != SOCKET_ERROR;
 }
 
+std::string SocketClient::receiveMessage() {
+    char buffer[1024] = {0};
+    int bytes = recv(sock, buffer, sizeof(buffer), 0);
+    if (bytes > 0) {
+        return std::string(buffer, bytes);
+    }
+    return "";
+}
+
 void SocketClient::disconnect() {
     closesocket(sock);
     WSACleanup();
