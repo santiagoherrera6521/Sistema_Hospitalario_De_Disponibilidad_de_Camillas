@@ -5,10 +5,12 @@
 #include <thread>
 #include <cstring>
 
-// Sockets POSIX (Linux)
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
+// Sockets Windows
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#pragma comment(lib, "ws2_32.lib")
 
 using namespace std;
 
@@ -28,7 +30,6 @@ void ServidorSocket::iniciar() {
         cout << "[SERVIDOR] Ya esta corriendo en el puerto " << puerto << endl;
         return;
     }
-    // Lanzar el bucle de escucha en un hilo separado (no bloquea main)
     thread([this]() { bucleEscucha(); }).detach();
 }
 
@@ -36,9 +37,10 @@ void ServidorSocket::detener() {
     if (activo.load()) {
         activo.store(false);
         if (server_fd != -1) {
-            close(server_fd);
+            closesocket((SOCKET)server_fd);
             server_fd = -1;
         }
+        WSACleanup();
         cout << "[SERVIDOR] Apagado de forma segura." << endl;
     }
 }
@@ -50,37 +52,46 @@ bool ServidorSocket::estaActivo() const {
 // --- Logica interna ---
 
 void ServidorSocket::bucleEscucha() {
+    // Inicializar Winsock (obligatorio en Windows)
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        cerr << "[ERROR] No se pudo inicializar Winsock." << endl;
+        return;
+    }
+
     struct sockaddr_in direccion;
     int opt = 1;
-    socklen_t addrlen = sizeof(direccion);
+    int addrlen = sizeof(direccion);
 
-    // 1. Crear descriptor de socket
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == 0) {
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == INVALID_SOCKET) {
         cerr << "[ERROR] No se pudo crear el socket." << endl;
+        WSACleanup();
         return;
     }
+    server_fd = (int)sock;
 
-    // 2. Permitir reusar el puerto tras reinicios rapidos
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0) {
         cerr << "[ERROR] setsockopt fallo." << endl;
+        WSACleanup();
         return;
     }
 
-    // 3. Configurar direccion y puerto
     direccion.sin_family      = AF_INET;
     direccion.sin_addr.s_addr = INADDR_ANY;
     direccion.sin_port        = htons(puerto);
 
-    // 4. Bind
-    if (bind(server_fd, (struct sockaddr*)&direccion, sizeof(direccion)) < 0) {
+    if (bind(sock, (struct sockaddr*)&direccion, sizeof(direccion)) == SOCKET_ERROR) {
         cerr << "[ERROR] Puerto " << puerto << " ocupado (bind fallo)." << endl;
+        closesocket(sock);
+        WSACleanup();
         return;
     }
 
-    // 5. Listen con backlog de 10 conexiones en cola
-    if (listen(server_fd, 10) < 0) {
+    if (listen(sock, 10) == SOCKET_ERROR) {
         cerr << "[ERROR] listen fallo." << endl;
+        closesocket(sock);
+        WSACleanup();
         return;
     }
 
@@ -91,41 +102,39 @@ void ServidorSocket::bucleEscucha() {
     cout << "  Camas  : " << TOTAL_CAMAS              << endl;
     cout << "========================================" << endl;
 
-    // 6. Bucle de aceptacion: cada cliente en su propio hilo
     while (activo.load()) {
-        int socket_cliente = accept(server_fd,
-                                    (struct sockaddr*)&direccion,
-                                    &addrlen);
-        if (socket_cliente < 0) {
-            if (!activo.load()) break;  // cierre limpio
+        SOCKET socket_cliente = accept(sock,
+                                       (struct sockaddr*)&direccion,
+                                       &addrlen);
+        if (socket_cliente == INVALID_SOCKET) {
+            if (!activo.load()) break;
             continue;
         }
-        // Lanzar hilo por cliente para no bloquear el accept
         thread([this, socket_cliente]() {
-            atenderCliente(socket_cliente);
+            atenderCliente((int)socket_cliente);
         }).detach();
     }
+
+    closesocket(sock);
+    WSACleanup();
 }
 
 void ServidorSocket::atenderCliente(int socket_cliente) {
     char buffer[1024] = {0};
-    int bytes = read(socket_cliente, buffer, sizeof(buffer) - 1);
+    int bytes = recv((SOCKET)socket_cliente, buffer, sizeof(buffer) - 1, 0);
 
     if (bytes > 0) {
         string mensaje(buffer, bytes);
         sanitizarMensaje(mensaje);
 
-        // Delegar al gestor de camas (estado global Singleton)
         string respuesta = GestorCamas::instancia().procesarMensaje(mensaje);
-
-        send(socket_cliente, respuesta.c_str(), respuesta.length(), 0);
+        send((SOCKET)socket_cliente, respuesta.c_str(), respuesta.length(), 0);
     }
 
-    close(socket_cliente);
+    closesocket((SOCKET)socket_cliente);
 }
 
 void ServidorSocket::sanitizarMensaje(string& msg) {
-    // Eliminar \r y \n del final del mensaje
     while (!msg.empty() && (msg.back() == '\n' || msg.back() == '\r')) {
         msg.pop_back();
     }
