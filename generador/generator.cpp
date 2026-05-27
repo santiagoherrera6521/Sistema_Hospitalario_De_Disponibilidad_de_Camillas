@@ -6,12 +6,12 @@
 #include <ctime>
 #include "client_socket.h"
 
-int main() {
+int main() {    
     std::string ip;
     std::cout << "Ingrese la IP del servidor: ";
     std::getline(std::cin, ip);
 
-    SocketClient client(ip, 9090);
+    SocketClient client(ip, 8080);
 
     if (!client.connectToServer()) {
         return 1;
