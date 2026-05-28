@@ -84,6 +84,9 @@ class GestorCamas(object):
     def procesarMensaje(self, mensaje):
         return _hospital_server.GestorCamas_procesarMensaje(self, mensaje)
 
+    def getEstadoCompleto(self):
+        return _hospital_server.GestorCamas_getEstadoCompleto(self)
+
     def getCamasDisponibles(self):
         return _hospital_server.GestorCamas_getCamasDisponibles(self)
 

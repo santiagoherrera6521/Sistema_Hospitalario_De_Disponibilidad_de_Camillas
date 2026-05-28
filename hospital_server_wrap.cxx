@@ -4239,6 +4239,30 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_GestorCamas_getEstadoCompleto(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  GestorCamas *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject *swig_obj[1] ;
+  std::string result;
+  
+  (void)self;
+  if (!args) SWIG_fail;
+  swig_obj[0] = args;
+  res1 = SWIG_ConvertPtr(swig_obj[0], &argp1,SWIGTYPE_p_GestorCamas, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "GestorCamas_getEstadoCompleto" "', argument " "1"" of type '" "GestorCamas const *""'"); 
+  }
+  arg1 = reinterpret_cast< GestorCamas * >(argp1);
+  result = ((GestorCamas const *)arg1)->getEstadoCompleto();
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_GestorCamas_getCamasDisponibles(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   GestorCamas *arg1 = 0 ;
@@ -4563,6 +4587,7 @@ static PyMethodDef SwigMethods[] = {
 	 { "RegistroPaciente_swiginit", RegistroPaciente_swiginit, METH_VARARGS, NULL},
 	 { "GestorCamas_instancia", _wrap_GestorCamas_instancia, METH_NOARGS, NULL},
 	 { "GestorCamas_procesarMensaje", _wrap_GestorCamas_procesarMensaje, METH_VARARGS, NULL},
+	 { "GestorCamas_getEstadoCompleto", _wrap_GestorCamas_getEstadoCompleto, METH_O, NULL},
 	 { "GestorCamas_getCamasDisponibles", _wrap_GestorCamas_getCamasDisponibles, METH_O, NULL},
 	 { "GestorCamas_getCamasOcupadas", _wrap_GestorCamas_getCamasOcupadas, METH_O, NULL},
 	 { "GestorCamas_getCamaPaciente", _wrap_GestorCamas_getCamaPaciente, METH_VARARGS, NULL},
