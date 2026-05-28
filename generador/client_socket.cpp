@@ -28,6 +28,20 @@ bool SocketClient::connectToServer() {
 }
 
 bool SocketClient::sendMessage(std::string mensaje) {
+    // Reconectar antes de cada envío
+    closesocket(sock);
+    
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    sockaddr_in server;
+    server.sin_family = AF_INET;
+    server.sin_port = htons(port);
+    inet_pton(AF_INET, host.c_str(), &server.sin_addr);
+    
+    if (connect(sock, (sockaddr*)&server, sizeof(server)) < 0) {
+        std::cout << "[Error] No se pudo reconectar al servidor.\n";
+        return false;
+    }
+    
     int result = send(sock, mensaje.c_str(), mensaje.size(), 0);
     return result != SOCKET_ERROR;
 }

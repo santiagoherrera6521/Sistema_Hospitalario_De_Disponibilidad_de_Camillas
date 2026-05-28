@@ -6,7 +6,7 @@ using namespace std;
 // --- Singleton ---
 
 GestorCamas::GestorCamas()
-    : camas_ocupadas(TOTAL_CAMAS + 1, false) {}  // indice 0 ignorado, 1..20 usados
+    : camas_ocupadas(TOTAL_CAMAS + 1, false) {}
 
 GestorCamas& GestorCamas::instancia() {
     static GestorCamas instancia_unica;
@@ -16,6 +16,11 @@ GestorCamas& GestorCamas::instancia() {
 // --- Logica de negocio ---
 
 string GestorCamas::procesarMensaje(const string& mensaje) {
+    // Comando STATUS: retorna el estado de todas las camas
+    if (mensaje == "STATUS") {
+        return getEstadoCompleto();
+    }
+
     // Protocolo esperado: "PX-XXXXX|2026-05-14T10:32:00"
     stringstream ss(mensaje);
     string id_paciente, timestamp;
@@ -58,6 +63,24 @@ string GestorCamas::procesarMensaje(const string& mensaje) {
     return "ADMITTED|" + cama_str;
 }
 
+// Retorna estado de todas las camas en formato:
+// CAMA-01:LIBRE,CAMA-02:PX-12345:10:32:00,CAMA-03:LIBRE,...
+string GestorCamas::getEstadoCompleto() const {
+    string resultado = "STATUS|";
+    for (int i = 1; i <= TOTAL_CAMAS; ++i) {
+        string cama_str = (i < 10 ? "CAMA-0" : "CAMA-") + to_string(i);
+        if (camas_ocupadas[i]) {
+            string paciente = getPacienteEnCama(i);
+            string hora = getHoraIngreso(paciente);
+            resultado += cama_str + ":" + paciente + ":" + hora;
+        } else {
+            resultado += cama_str + ":LIBRE";
+        }
+        if (i < TOTAL_CAMAS) resultado += ",";
+    }
+    return resultado;
+}
+
 // --- Consultas de estado ---
 
 int GestorCamas::getCamasDisponibles() const {
@@ -83,5 +106,5 @@ string GestorCamas::getPacienteEnCama(int numero_cama) const {
     for (auto const& [id, registro] : mapa_pacientes) {
         if (registro.numero_cama == numero_cama) return id;
     }
-    return "";  // cama libre
+    return "";
 }

@@ -5,7 +5,6 @@
 #include <thread>
 #include <cstring>
 
-// Sockets Windows
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -14,16 +13,12 @@
 
 using namespace std;
 
-// --- Constructor / Destructor ---
-
 ServidorSocket::ServidorSocket(int puerto)
     : puerto(puerto), server_fd(-1), activo(false) {}
 
 ServidorSocket::~ServidorSocket() {
     detener();
 }
-
-// --- API publica ---
 
 void ServidorSocket::iniciar() {
     if (activo.load()) {
@@ -49,10 +44,7 @@ bool ServidorSocket::estaActivo() const {
     return activo.load();
 }
 
-// --- Logica interna ---
-
 void ServidorSocket::bucleEscucha() {
-    // Inicializar Winsock (obligatorio en Windows)
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         cerr << "[ERROR] No se pudo inicializar Winsock." << endl;
